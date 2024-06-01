@@ -1,0 +1,7 @@
+azure-cognitiveservices-speech
+beautifulsoup4
+openai==1.30.5
+playsound
+python-dotenv
+requests
+wheel
