@@ -1,4 +1,4 @@
-# Read My News :newspaper::microphone::speaker_high_volume:
+# Read My News :newspaper::microphone::speaker:
 
 # Installing the App
 Open up a Terminal (macOS/Linux) or PowerShell (Windows) and enter the following commands:
