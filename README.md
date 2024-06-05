@@ -6,7 +6,7 @@ Today, there is such an abundance of news and information that it is a real chal
 
 1. Create an Azure AI Speech resource on Azure, and obtain its Key and Region from Resource Management > Keys and Endpoints.
 2. Create an Azure OpenAI resource on Azure, and obtain its Key and Endpoint from Resource Management > Keys and Endpoints.
-3. Open Azure OpenAI Studio and deploy a new GPT model (3.5 or better recommended), and obtain the Model name, e.g. "gpt-35-turbo"
+3. Open Azure OpenAI Studio, deploy a new GPT model (3.5 or better recommended), and obtain your model's deployment name, e.g. 'mygpt4modeldeployment'.
 4. Choose an Azure OpenAI API version, e.g. "2024-02-01". The available OpenAI API versions can be found [here](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions).
 5. After cloning the repository (steps below), rename the provided .env-example file to just '.env', and enter the corresponding values from the previous steps.
 
