@@ -32,5 +32,5 @@ python app.py
 ```
 #
 # Dataset Sources
-- [MIND: MIcrosoft News Dataset](https://msnews.github.io/#getting-start) from Kaggle.
+- [MIND: MIcrosoft News Dataset](https://msnews.github.io/#getting-start).
 #
