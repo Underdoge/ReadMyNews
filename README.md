@@ -28,7 +28,7 @@ pip install -r requirements.txt
 # Running the App
 ### Running the program on macOS / Linux
 ```sh
-streamlit run app.py
+python app.py
 ```
 #
 # Dataset Sources
