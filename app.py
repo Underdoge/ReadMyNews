@@ -11,7 +11,12 @@ import azure.cognitiveservices.speech as speech_sdk
 from dotenv import load_dotenv
 from openai import AzureOpenAI
 
-from util.movies import MOVIE_RECS_BY_GENRE, get_movie_recommendations_by_genre
+from util.news import (
+    NEWS_ARTICLE_ABSTRACT_BY_TITLE,
+    NEWS_RECS_BY_CATEGORY,
+    get_article_abstract_by_title,
+    get_random_news_by_category,
+)
 from util.speech import speech_to_text, text_to_speech
 
 
@@ -123,27 +128,31 @@ if __name__ == "__main__":
     speech_config = speech_sdk.SpeechConfig(speech_ai_key, speech_ai_region)
 
     client = AzureOpenAI(
-        azure_endpoint= os.getenv("AZURE_OPENAI_ENDPOINT"),
-        api_key=os.getenv("AZURE_OPENAI_KEY"),
-        api_version= os.getenv("OPENAI_API_VERSION"),
+        azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+        api_key = os.getenv("AZURE_OPENAI_KEY"),
+        api_version = os.getenv("OPENAI_API_VERSION"),
     )
 
-    model_name =  os.getenv("MODEL_NAME")
+    model_name = os.getenv("MODEL_NAME")
 
     tools = [
-        MOVIE_RECS_BY_GENRE
+        NEWS_RECS_BY_CATEGORY,
+        NEWS_ARTICLE_ABSTRACT_BY_TITLE
     ]
 
     available_functions = {
-        "get_movie_recommendations_by_genre":get_movie_recommendations_by_genre
+        "get_random_news_by_category":get_random_news_by_category,
+        "get_article_abstract_by_title": get_article_abstract_by_title
     }
 
     next_messages = [
         {
             "role": "system",
-            "content": "You are a helpful assistant that helps users get item \
-recommendations. You have access to several tools and sometimes you may need \
-to call multiple tools in sequence to get answers for your users.",
+            "content": "You are a helpful assistant that helps users get news \
+article recommendations. You have access to several tools and sometimes you \
+may need to call multiple tools in sequence to get answers for your users, \
+but make sure not to modify the news article titles in any way, or the other \
+tools that use the titles won't work.",
         }
     ]
 
