@@ -5,4 +5,5 @@ openai==1.30.5
 polars
 python-dotenv
 requests
+streamlit
 wheel

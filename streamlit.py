@@ -1,7 +1,4 @@
-""" This is the app's main module which makes the calls to Azure OpenAI using
-the Python SDK.
-
-"""
+""" This is the Streamlit version of the app. """
 
 import inspect
 import json
@@ -11,13 +8,14 @@ import azure.cognitiveservices.speech as speech_sdk
 from dotenv import load_dotenv
 from openai import AzureOpenAI
 
+import streamlit as st
 from util.news import (
     NEWS_ARTICLE_ABSTRACT_BY_TITLE,
     NEWS_RECS_BY_CATEGORY,
     get_article_abstract_by_title,
     get_random_news_by_category,
 )
-from util.speech import speech_to_text, text_to_speech
+from util.speech import speech_to_text, text_to_speech_streamlit
 
 
 def check_args(function: callable, args: list) -> bool:
@@ -56,6 +54,7 @@ def run_multiturn_conversation(messages: list, tools: list,
         tools (list): a list with the functions' definitions.
         available_functions (dict): a dictionary with a key for each function.
     """
+    print("Messages:", messages)
     response = client.chat.completions.create(
         messages=messages,
         tools=tools,
@@ -119,60 +118,72 @@ def run_multiturn_conversation(messages: list, tools: list,
     return response
 
 
-if __name__ == "__main__":
+load_dotenv()
 
-    load_dotenv()
+speech_ai_key = os.getenv('SPEECH_KEY')
+speech_ai_region = os.getenv('SPEECH_REGION')
+speech_config = speech_sdk.SpeechConfig(speech_ai_key, speech_ai_region)
 
-    speech_ai_key = os.getenv('SPEECH_KEY')
-    speech_ai_region = os.getenv('SPEECH_REGION')
-    speech_config = speech_sdk.SpeechConfig(speech_ai_key, speech_ai_region)
+client = AzureOpenAI(
+    azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+    api_key = os.getenv("AZURE_OPENAI_KEY"),
+    api_version = os.getenv("OPENAI_API_VERSION"),
+)
 
-    client = AzureOpenAI(
-        azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
-        api_key = os.getenv("AZURE_OPENAI_KEY"),
-        api_version = os.getenv("OPENAI_API_VERSION"),
-    )
+model_name = os.getenv("MODEL_NAME")
 
-    model_name = os.getenv("MODEL_NAME")
+tools = [
+    NEWS_RECS_BY_CATEGORY,
+    NEWS_ARTICLE_ABSTRACT_BY_TITLE
+]
 
-    tools = [
-        NEWS_RECS_BY_CATEGORY,
-        NEWS_ARTICLE_ABSTRACT_BY_TITLE
-    ]
+available_functions = {
+    "get_random_news_by_category":get_random_news_by_category,
+    "get_article_abstract_by_title": get_article_abstract_by_title
+}
 
-    available_functions = {
-        "get_random_news_by_category":get_random_news_by_category,
-        "get_article_abstract_by_title": get_article_abstract_by_title
-    }
 
-    next_messages = [
-        {
-            "role": "system",
-            "content": "You are a helpful assistant that helps users get news \
+
+st.title("Read My News :newspaper::microphone::sound:")
+
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+    {
+        "role": "system",
+        "content": "You are a helpful assistant that helps users get news \
 article recommendations. You have access to several tools and sometimes you \
 may need to call multiple tools in sequence to get answers for your users, \
 but make sure not to modify the news article titles in any way, or the other \
 tools that use the titles won't work.",
-        }
-    ]
+    }
+]
 
-    while True:
+chat_roles = ["user", "assistant"]
 
-        prompt, lang = speech_to_text(speech_config)
-        next_messages.append(
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        )
+for message in st.session_state.messages:
+    if message["role"] in chat_roles and message["content"] is not None:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
+# TODO Find a way to capture sound in streamlit to save it to a file
+# prompt, lang = speech_to_text(speech_config)
+if prompt := st.chat_input("What can I help you with?"):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
         assistant_response = run_multiturn_conversation(
-            next_messages, tools, available_functions
+            st.session_state.messages, tools, available_functions
         )
         if hasattr(assistant_response, "choices"):
-            print("OpenAI:", assistant_response.choices[0].message.content)
-            text_to_speech(
+            response = st.write(assistant_response.choices[0].message.content)
+            text_to_speech_streamlit(
                 speech_config, assistant_response.choices[0].message.content,
-                lang)
+                "en-US")
+            st.audio("sounds\\response.wav", autoplay=True)
         else:
             print(assistant_response)
+    st.session_state.messages.append(
+        {"role": "assistant",
+         "content": assistant_response.choices[0].message.content})

@@ -36,9 +36,13 @@ pip install -r requirements.txt
 ```
 #
 # Running the App
-### Running the program on macOS / Linux
+### Running the command line app
 ```sh
 python app.py
+```
+### Running the Streamlit app
+```sh
+streamlit run streamlit.py
 ```
 #
 # Dataset Sources
