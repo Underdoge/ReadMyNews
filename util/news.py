@@ -1,6 +1,10 @@
 """This module defines the news recommendaion related functions for OpenAI."""
 
+import os.path
+from zipfile import ZipFile
+
 import polars as pl
+import requests
 
 NEWS_RECS_BY_CATEGORY = {
     "type": "function",
@@ -39,12 +43,30 @@ from a given category. This function requires at least one category to work.",
     },
 }
 
+
+def download_news_articles() -> None:
+    """ Downloads and extracts the news articles dataset. """
+
+    url = "https://mind201910small.blob.core.windows.net/release/MINDsmall_train.zip"
+    response = requests.get(url, allow_redirects=True)
+
+    with open("data\\MINDsmall_train.zip", 'wb') as file:
+        file.write(response.content)
+
+    with ZipFile("data\\MINDsmall_train.zip", "r") as zip_file:
+        zip_file.extractall("data\\MINDsmall_train")
+
+
 def load_news_articles() -> pl.LazyFrame:
     """ Loads the news articles and returns them in a polars Lazy Frame.
 
     Returns:
         pl.LazyFrame: _description_
     """
+
+    if not os.path.isfile("data\\MINDsmall_train\\news.tsv"):
+        download_news_articles()
+
     news_lf = pl.scan_csv("data\\MINDsmall_train\\news.tsv",
                        separator="\t",
                        has_header=False,
@@ -104,6 +126,7 @@ d title. This function requires at least one title to function correctly.",
         },
     },
 }
+
 
 def get_article_abstract_by_title(title: str) -> str:
     """ Retrieves a news article's abstract by the given title.
