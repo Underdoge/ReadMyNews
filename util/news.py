@@ -87,8 +87,8 @@ def load_news_articles() -> pl.LazyFrame:
 
 
 def get_random_news_by_category(number: int, category: str) -> str:
-    """ Retrieves random news articles by the given category or categories,
-        and returns their title.
+    """ Retrieves random news articles by the given category, and returns
+        their title.
 
     Args:
         number (int): the number of news articles by category to return.
