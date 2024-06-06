@@ -47,7 +47,7 @@ def text_to_speech_streamlit(speech_config: SpeechConfig,
 alNeural"
 
     audio_config = speech_sdk.audio.AudioOutputConfig(
-        filename="sounds\\response.wav")
+        filename="sounds/response.wav")
     speech_synthesizer = speech_sdk.SpeechSynthesizer(
         speech_config, audio_config)
 

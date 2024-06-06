@@ -50,11 +50,11 @@ def download_news_articles() -> None:
     url = "https://mind201910small.blob.core.windows.net/release/MINDsmall_train.zip"
     response = requests.get(url, allow_redirects=True)
 
-    with open("data\\MINDsmall_train.zip", 'wb') as file:
+    with open("data/MINDsmall_train.zip", 'wb') as file:
         file.write(response.content)
 
-    with ZipFile("data\\MINDsmall_train.zip", "r") as zip_file:
-        zip_file.extractall("data\\MINDsmall_train")
+    with ZipFile("data/MINDsmall_train.zip", "r") as zip_file:
+        zip_file.extractall("data/MINDsmall_train")
 
 
 def load_news_articles() -> pl.LazyFrame:
@@ -64,10 +64,10 @@ def load_news_articles() -> pl.LazyFrame:
         pl.LazyFrame: _description_
     """
 
-    if not os.path.isfile("data\\MINDsmall_train\\news.tsv"):
+    if not os.path.isfile("data/MINDsmall_train/news.tsv"):
         download_news_articles()
 
-    news_lf = pl.scan_csv("data\\MINDsmall_train\\news.tsv",
+    news_lf = pl.scan_csv("data/INDsmall_train/news.tsv",
                        separator="\t",
                        has_header=False,
                        schema={"news_id" : pl.datatypes.String,

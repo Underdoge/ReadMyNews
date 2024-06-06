@@ -181,7 +181,7 @@ if prompt := st.chat_input("What can I help you with?"):
             text_to_speech_streamlit(
                 speech_config, assistant_response.choices[0].message.content,
                 "en-US")
-            st.audio("sounds\\response.wav", autoplay=True)
+            st.audio("sounds/response.wav", autoplay=True)
         else:
             print(assistant_response)
     st.session_state.messages.append(
