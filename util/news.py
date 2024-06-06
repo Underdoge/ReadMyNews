@@ -50,7 +50,8 @@ def download_news_articles() -> None:
     url = "https://mind201910small.blob.core.windows.net/release/MINDsmall_dev.zip"
     response = requests.get(url, allow_redirects=True)
 
-    open("data/MINDsmall_dev.zip", 'wb').write(response.content)
+    with open("data/MINDsmall_dev.zip", 'wb') as file:
+        file.write(response.content)
 
     with ZipFile("data/MINDsmall_dev.zip", "r") as zip_file:
         zip_file.extractall("data/MINDsmall_dev")
@@ -150,4 +151,5 @@ def get_article_abstract_by_title(title: str) -> str:
 
 
 if __name__ == "__main__":
-    print(get_article_abstract_by_title("Peanut allergy shots? A new Stanford-led study shows an antibody injection could prevent allergic reactions"))
+    print(get_article_abstract_by_title("Peanut allergy shots? A new Stanford-\
+led study shows an antibody injection could prevent allergic reactions"))
