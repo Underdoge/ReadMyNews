@@ -50,8 +50,7 @@ def download_news_articles() -> None:
     url = "https://mind201910small.blob.core.windows.net/release/MINDsmall_train.zip"
     response = requests.get(url, allow_redirects=True)
 
-    with open("data/MINDsmall_train.zip", 'wb') as file:
-        file.write(response.content)
+    open("data/MINDsmall_train.zip", 'wb').write(response.content)
 
     with ZipFile("data/MINDsmall_train.zip", "r") as zip_file:
         zip_file.extractall("data/MINDsmall_train")
