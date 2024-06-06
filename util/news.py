@@ -47,13 +47,13 @@ from a given category. This function requires at least one category to work.",
 def download_news_articles() -> None:
     """ Downloads and extracts the news articles dataset. """
 
-    url = "https://mind201910small.blob.core.windows.net/release/MINDsmall_train.zip"
+    url = "https://mind201910small.blob.core.windows.net/release/MINDsmall_dev.zip"
     response = requests.get(url, allow_redirects=True)
 
-    open("data/MINDsmall_train.zip", 'wb').write(response.content)
+    open("data/MINDsmall_dev.zip", 'wb').write(response.content)
 
-    with ZipFile("data/MINDsmall_train.zip", "r") as zip_file:
-        zip_file.extractall("data/MINDsmall_train")
+    with ZipFile("data/MINDsmall_dev.zip", "r") as zip_file:
+        zip_file.extractall("data/MINDsmall_dev")
 
 
 def load_news_articles() -> pl.LazyFrame:
@@ -63,10 +63,10 @@ def load_news_articles() -> pl.LazyFrame:
         pl.LazyFrame: _description_
     """
 
-    if not os.path.isfile("data/MINDsmall_train/news.tsv"):
+    if not os.path.isfile("data/MINDsmall_dev/news.tsv"):
         download_news_articles()
 
-    news_lf = pl.scan_csv("data/INDsmall_train/news.tsv",
+    news_lf = pl.scan_csv("data/MINDsmall_dev/news.tsv",
                        separator="\t",
                        has_header=False,
                        schema={"news_id" : pl.datatypes.String,
