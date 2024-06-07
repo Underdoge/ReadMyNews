@@ -1,5 +1,5 @@
+audiorecorder
 azure-cognitiveservices-speech
-beautifulsoup4
 ipykernel
 openai==1.30.5
 polars
