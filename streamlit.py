@@ -5,6 +5,7 @@ import json
 import os
 
 import azure.cognitiveservices.speech as speech_sdk
+from audiorecorder import audiorecorder
 from dotenv import load_dotenv
 from openai import AzureOpenAI
 
@@ -15,7 +16,7 @@ from util.news import (
     get_article_abstract_by_title,
     get_random_news_by_category,
 )
-from util.speech import speech_to_text, text_to_speech_streamlit
+from util.speech import speech_to_text_streamlit, text_to_speech_streamlit
 
 
 def check_args(function: callable, args: list) -> bool:
@@ -54,7 +55,7 @@ def run_multiturn_conversation(messages: list, tools: list,
         tools (list): a list with the functions' definitions.
         available_functions (dict): a dictionary with a key for each function.
     """
-    print("Messages:", messages)
+
     response = client.chat.completions.create(
         messages=messages,
         tools=tools,
@@ -167,7 +168,39 @@ for message in st.session_state.messages:
 
 # TODO Find a way to capture sound in streamlit to save it to a file
 # prompt, lang = speech_to_text(speech_config)
-if prompt := st.chat_input("What can I help you with?"):
+
+with st.sidebar:
+    audio = audiorecorder("", "", show_visualizer=False)
+
+user_input = st.chat_input("What can I help you with?")
+
+if user_input:
+    st.session_state.messages.append({"role": "user", "content": user_input})
+    with st.chat_message("user"):
+        st.markdown(user_input)
+
+    with st.chat_message("assistant"):
+        assistant_response = run_multiturn_conversation(
+            st.session_state.messages, tools, available_functions
+        )
+        if hasattr(assistant_response, "choices"):
+            text_to_speech_streamlit(
+                speech_config, assistant_response.choices[0].message.content,
+                "en-US")
+            st.write(assistant_response.choices[0].message.content)
+            with st.sidebar:
+                st.audio("sounds/response.wav", autoplay=True)
+        else:
+            print(assistant_response)
+    st.session_state.messages.append(
+        {"role": "assistant",
+            "content": assistant_response.choices[0].message.content})
+    audio = None
+
+
+if audio is not None and len(audio) > 0:
+    audio.export("sounds/prompt.wav", format="wav")
+    prompt, lang = speech_to_text_streamlit(speech_config)
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -177,13 +210,15 @@ if prompt := st.chat_input("What can I help you with?"):
             st.session_state.messages, tools, available_functions
         )
         if hasattr(assistant_response, "choices"):
-            response = st.write(assistant_response.choices[0].message.content)
             text_to_speech_streamlit(
                 speech_config, assistant_response.choices[0].message.content,
                 "en-US")
-            st.audio("sounds/response.wav", autoplay=True)
+            st.write(assistant_response.choices[0].message.content)
+            with st.sidebar:
+                st.audio("sounds/response.wav", autoplay=True)
         else:
             print(assistant_response)
     st.session_state.messages.append(
         {"role": "assistant",
-         "content": assistant_response.choices[0].message.content})
+            "content": assistant_response.choices[0].message.content})
+    audio = None
