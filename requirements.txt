@@ -1,5 +1,4 @@
-pyaudio
-audiorecorder
+streamlit-audiorecorder
 azure-cognitiveservices-speech
 ipykernel
 openai==1.30.5
