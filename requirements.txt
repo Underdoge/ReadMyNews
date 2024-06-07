@@ -1,4 +1,4 @@
-PyAudio
+pyaudio
 audiorecorder
 azure-cognitiveservices-speech
 ipykernel
