@@ -15,8 +15,10 @@ import streamlit as st
 from streamlit.components.v1 import html
 from util.language import detect_language
 from util.news import (
+    NEWS_ARTICLE_ABSTRACT_BY_ID,
     NEWS_ARTICLE_ABSTRACT_BY_TITLE,
     NEWS_RECS_BY_CATEGORY,
+    get_article_abstract_by_id,
     get_article_abstract_by_title,
     get_random_news_by_category,
 )
@@ -145,12 +147,14 @@ model_name = os.getenv("MODEL_NAME")
 
 tools = [
     NEWS_RECS_BY_CATEGORY,
-    NEWS_ARTICLE_ABSTRACT_BY_TITLE
+    NEWS_ARTICLE_ABSTRACT_BY_TITLE,
+    NEWS_ARTICLE_ABSTRACT_BY_ID
 ]
 
 available_functions = {
     "get_random_news_by_category":get_random_news_by_category,
-    "get_article_abstract_by_title": get_article_abstract_by_title
+    "get_article_abstract_by_title": get_article_abstract_by_title,
+    "get_article_abstract_by_id": get_article_abstract_by_id
 }
 
 
@@ -162,9 +166,9 @@ if "messages" not in st.session_state:
         "role": "system",
         "content": "You are a helpful assistant that helps users get news \
 article recommendations. You have access to several tools and sometimes you \
-may need to call multiple tools in sequence to get answers for your users, \
-but make sure not to modify the news article titles in any way, or the other \
-tools that use the titles won't work.",
+may need to call multiple tools in sequence to get answers for your users. \
+You must translate the output of the tools to the user's language. \
+Don't read the article ID."
     }
 ]
 
@@ -175,8 +179,6 @@ for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-# TODO Find a way to capture sound in streamlit to save it to a file
-# prompt, lang = speech_to_text(speech_config)
 
 with st.sidebar:
     audio = audiorecorder("Record", "Stop", show_visualizer=True)

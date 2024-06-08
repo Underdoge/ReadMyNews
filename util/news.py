@@ -95,7 +95,7 @@ def get_random_news_by_category(number: int, category: str) -> str:
         category (str): the category of news articles to return.
 
     Returns:
-        str: the title of each news article.
+        str: the title and ID of each news article.
     """
     news_lf = load_news_articles()
     news_articles = []
@@ -103,10 +103,12 @@ def get_random_news_by_category(number: int, category: str) -> str:
     news_by_cat = news_lf.filter(
         pl.col("category") == category
     ).select(
-        pl.col("title")
+        pl.col("title"),
+        pl.col("news_id")
     ).collect().sample(n=number).rows()
     for article in news_by_cat:
-        news_articles.append("Title: \"" + article[0] + "\"")
+        news_articles.append("Title: \"" + article[0] + "\", \
+ID: \"" + article[1] + "\"")
 
     return ". ".join(news_articles)
 
@@ -132,7 +134,7 @@ def get_article_abstract_by_title(title: str) -> str:
     """ Retrieves a news article's abstract by the given title.
 
     Args:
-        title (str): the article's title to return.
+        title (str): the title of the article to return.
 
     Returns:
         str: the news article's abstract.
@@ -150,6 +152,46 @@ def get_article_abstract_by_title(title: str) -> str:
         return "Abstract not found."
 
 
+NEWS_ARTICLE_ABSTRACT_BY_ID = {
+    "type": "function",
+    "function": {
+        "name": "get_article_abstract_by_id",
+        "description": "Retrieves the news article's abstract with the provide\
+d id. This function requires at least one news_id to function correctly.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "id": { "type": "string"},
+            },
+            "required": ["id"],
+        },
+    },
+}
+
+
+def get_article_abstract_by_id(id: str) -> str:
+    """ Retrieves a news article's abstract by the id.
+
+    Args:
+        id (str): the id of the article to return.
+
+    Returns:
+        str: the news article's abstract.
+    """
+    news_lf = load_news_articles()
+    abstract = news_lf.filter(
+        pl.col("news_id") == id
+    ).select(
+        pl.col("abstract")
+    ).collect()
+
+    if len(abstract.to_series().to_list()) > 0:
+        return abstract.to_series().to_list()[0]
+    else:
+        return "Abstract not found."
+
+
 if __name__ == "__main__":
-    print(get_article_abstract_by_title("Peanut allergy shots? A new Stanford-\
-led study shows an antibody injection could prevent allergic reactions"))
+    print(get_article_abstract_by_title("Raptors' Fred VanVleet injured after \
+collision with cameraman"))
+    print(get_random_news_by_category(3, "sports"))
