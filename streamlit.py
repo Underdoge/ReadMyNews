@@ -6,10 +6,14 @@ import os
 
 import azure.cognitiveservices.speech as speech_sdk
 from audiorecorder import audiorecorder
+from azure.ai.textanalytics import TextAnalyticsClient
+from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
 from openai import AzureOpenAI
 
 import streamlit as st
+from streamlit.components.v1 import html
+from util.language import detect_language
 from util.news import (
     NEWS_ARTICLE_ABSTRACT_BY_TITLE,
     NEWS_RECS_BY_CATEGORY,
@@ -125,6 +129,12 @@ speech_ai_key = os.getenv('SPEECH_KEY')
 speech_ai_region = os.getenv('SPEECH_REGION')
 speech_config = speech_sdk.SpeechConfig(speech_ai_key, speech_ai_region)
 
+ai_endpoint = os.getenv('AI_SERVICE_ENDPOINT')
+ai_key = os.getenv('AI_SERVICE_KEY')
+credential = AzureKeyCredential(ai_key)
+text_analytics_client = TextAnalyticsClient(endpoint=ai_endpoint,
+                                            credential=credential)
+
 client = AzureOpenAI(
     azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
     api_key = os.getenv("AZURE_OPENAI_KEY"),
@@ -142,7 +152,6 @@ available_functions = {
     "get_random_news_by_category":get_random_news_by_category,
     "get_article_abstract_by_title": get_article_abstract_by_title
 }
-
 
 
 st.title("Read My News :newspaper::microphone::sound:")
@@ -170,12 +179,15 @@ for message in st.session_state.messages:
 # prompt, lang = speech_to_text(speech_config)
 
 with st.sidebar:
-    audio = audiorecorder("", "", show_visualizer=False)
+    audio = audiorecorder("Record", "Stop", show_visualizer=True)
+
 
 user_input = st.chat_input("What can I help you with?")
 
 if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
+    lang = detect_language(text_analytics_client, [user_input])
+    lang = "es-MX" if lang == "Spanish" else "en-US"
     with st.chat_message("user"):
         st.markdown(user_input)
 
@@ -186,7 +198,7 @@ if user_input:
         if hasattr(assistant_response, "choices"):
             text_to_speech_streamlit(
                 speech_config, assistant_response.choices[0].message.content,
-                "en-US")
+                lang)
             st.write(assistant_response.choices[0].message.content)
             with st.sidebar:
                 st.audio("sounds/response.wav", autoplay=True)
@@ -211,8 +223,9 @@ if audio is not None and len(audio) > 0:
         )
         if hasattr(assistant_response, "choices"):
             text_to_speech_streamlit(
-                speech_config, assistant_response.choices[0].message.content,
-                "en-US")
+                    speech_config,
+                    assistant_response.choices[0].message.content,
+                    lang)
             st.write(assistant_response.choices[0].message.content)
             with st.sidebar:
                 st.audio("sounds/response.wav", autoplay=True)
@@ -222,3 +235,36 @@ if audio is not None and len(audio) > 0:
         {"role": "assistant",
             "content": assistant_response.choices[0].message.content})
     audio = None
+
+
+code = """
+
+    const top_document = window.parent.document;
+    const iframe = top_document.querySelector('[title="audiorecorder.audiorecorder"]');
+    const streamlitDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+    buttons = Array.from(streamlitDoc.querySelectorAll('button'));
+    record_button = buttons.find((el) => el.innerText === "Record");
+    stop_button = buttons.find((el) => el.innerText === "Stop");
+    console.log(record_button);
+
+    top_document.addEventListener("keydown", function (e) {
+        switch (e.key) {
+            case "ArrowUp":
+                console.log("up");
+                buttons = Array.from(streamlitDoc.querySelectorAll('button'));
+                record_button = buttons.find((el) => el.innerText === "Record");
+                record_button.click();
+                break;
+            case "ArrowDown":
+                console.log("down");
+                buttons = Array.from(streamlitDoc.querySelectorAll('button'));
+                stop_button = buttons.find((el) => el.innerText === "Stop");
+                stop_button.click();
+                break;
+        }
+    });
+
+"""
+my_html = f"<script>{code}</script>"
+html(my_html)
