@@ -9,7 +9,7 @@ from azure.ai.translation.text import TextTranslationClient
 from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
 
-from language import translate_text
+from util.language import translate_text
 
 
 def download_news_articles() -> None:
@@ -109,7 +109,7 @@ def get_articles_with_click_counts() -> pl.DataFrame:
         lang (str): the target language to translate the news.
 
     Returns:
-        DataFrame: the articles DataFrame with a new column with click counts.
+        DataFrame: a new DataFrame with news_id, category and click counts.
     """
 
     news_lf = load_news_articles()
@@ -129,28 +129,23 @@ def get_articles_with_click_counts() -> pl.DataFrame:
                     category = get_article_category_by_id(news_lf,
                                                             article_id)
                     clicks_per_article_id[article_id] = {
-                        "clicks": int(click[-1]),
-                        "category": category}
+                        "news_id": article_id,
+                        "category": category,
+                        "clicks": int(click[-1])}
                 else:
                     clicks_per_article_id[
                         article_id]["clicks"] += int(click[-1])
-    article_engagement = pl.DataFrame(schema={"news_id": pl.String,
-                                              "category": pl.String,
-                                              "clicks": pl.Int64})
-    for key, value in clicks_per_article_id.items():
-        new_df = pl.DataFrame({"news_id": key,
-                               "category": value["category"],
-                               "clicks": value["clicks"]})
-        article_engagement = pl.concat([article_engagement, new_df])
-    print(article_engagement)
+
+    return pl.DataFrame(list(clicks_per_article_id.values()))
 
 
 NEWS_RECS_BY_CATEGORY = {
     "type": "function",
     "function": {
         "name": "get_random_news_by_category",
-        "description": "Returns the provided number of news article headlines \
-from a given category. This function requires at least one category to work.",
+        "description": "Returns the provided number of randome news article \
+headlines from a given category. This function requires at least one category \
+to work.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -225,6 +220,97 @@ ID: \"" + article[1] + "\""
         news_articles.append(title_and_id)
 
     return ". ".join(news_articles)
+
+
+NEWS_RECS_BY_CATEGORY = {
+    "type": "function",
+    "function": {
+        "name": "get_most_engaged_news_by_category",
+        "description": "Returns the provided number of most engaged news \
+article headlines from a given category. This function requires at least one \
+category to work.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "number": { "type": "number" },
+                "category": {
+                    "type": "string",
+                    "enum": [
+                        'sports',
+                        'travel',
+                        'health',
+                        'news',
+                        'movies',
+                        'tv',
+                        'entertainment',
+                        'video',
+                        'lifestyle',
+                        'finance',
+                        'kids',
+                        'weather',
+                        'northamerica',
+                        'autos',
+                        'foodanddrink',
+                        'music'
+                    ]
+                },
+                "lang": { "type": "string" }
+            },
+            "required": ["number", "category", "lang"]
+        },
+    },
+}
+
+
+def get_most_engaged_news_by_category(number: int, category: str,
+                                      lang: str) -> str:
+    """ Retrieves the most engaged news articles by the given category,
+        and returns their title.
+
+    Args:
+        number (int): the number of news articles by category to return.
+        category (str): the category of news articles to return.
+        lang (str): the target language to translate the news.
+
+    Returns:
+        str: the title and ID of each news article.
+    """
+
+    news_lf = load_news_articles()
+    article_engagement = get_articles_with_click_counts()
+    news_articles = []
+
+    article_engagement = article_engagement.filter(
+        pl.col("category") == category
+    ).sort("clicks", descending=True)
+
+    print(article_engagement)
+
+#     news_by_cat = news_lf.filter(
+#         pl.col("category") == category
+#     ).select(
+#         pl.col("title"),
+#         pl.col("news_id")
+#     ).sample(n=number).rows()
+
+#     for article in news_by_cat:
+#         title_and_id = "Title: \"" + article[0] + "\", \
+# ID: \"" + article[1] + "\""
+#         if lang != "en":
+#             load_dotenv()
+#             translator_endpoint = os.getenv('TRANSLATOR_ENDPOINT')
+#             translator_region = os.getenv('TRANSLATOR_REGION')
+#             translator_key = os.getenv('TRANSLATOR_KEY')
+#             credential = AzureKeyCredential(translator_key)
+#             translator_client = TextTranslationClient(credential=credential,
+#                                                       endpoint=translator_endpoint,
+#                                                       region=translator_region)
+#             title_and_id = translate_text(translator_client,
+#                                           title_and_id,
+#                                           lang)
+#         news_articles.append(title_and_id)
+
+#     return ". ".join(news_articles)
 
 
 NEWS_ARTICLE_ABSTRACT_BY_TITLE = {
@@ -338,8 +424,4 @@ def get_article_abstract_by_id(id: str, lang: str) -> str:
 
 
 if __name__ == "__main__":
-    print(get_random_news_by_category(2, "sports", "en"))
-    print(get_article_abstract_by_title("Saints QB Drew Brees will reportedly start Sunday against Cardinals", "en"))
-    print(get_article_abstract_by_id("N46279", "en"))
-    print(get_article_category_by_id(load_news_articles(), "N46279"))
-    get_articles_with_click_counts()
+    print(get_most_engaged_news_by_category(2, "sports", "en"))
