@@ -5,43 +5,11 @@ from zipfile import ZipFile
 
 import polars as pl
 import requests
+from azure.ai.translation.text import TextTranslationClient
+from azure.core.credentials import AzureKeyCredential
+from dotenv import load_dotenv
 
-NEWS_RECS_BY_CATEGORY = {
-    "type": "function",
-    "function": {
-        "name": "get_random_news_by_category",
-        "description": "Returns the provided number of news article headlines \
-from a given category. This function requires at least one category to work.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "number": { "type": "number"},
-                "category": {
-                    "type": "string",
-                    "enum": [
-                        'sports',
-                        'travel',
-                        'health',
-                        'news',
-                        'movies',
-                        'tv',
-                        'entertainment',
-                        'video',
-                        'lifestyle',
-                        'finance',
-                        'kids',
-                        'weather',
-                        'northamerica',
-                        'autos',
-                        'foodanddrink',
-                        'music'
-                    ]
-                }
-            },
-            "required": ["number", "category"],
-        },
-    },
-}
+from util.language import translate_text
 
 
 def download_news_articles() -> None:
@@ -86,17 +54,64 @@ def load_news_articles() -> pl.LazyFrame:
     return news_lf
 
 
-def get_random_news_by_category(number: int, category: str) -> str:
+NEWS_RECS_BY_CATEGORY = {
+    "type": "function",
+    "function": {
+        "name": "get_random_news_by_category",
+        "description": "Returns the provided number of news article headlines \
+from a given category. This function requires at least one category to work.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "number": { "type": "number" },
+                "category": {
+                    "type": "string",
+                    "enum": [
+                        'sports',
+                        'travel',
+                        'health',
+                        'news',
+                        'movies',
+                        'tv',
+                        'entertainment',
+                        'video',
+                        'lifestyle',
+                        'finance',
+                        'kids',
+                        'weather',
+                        'northamerica',
+                        'autos',
+                        'foodanddrink',
+                        'music'
+                    ]
+                },
+                "lang": {
+                    "type": "string",
+                    "enum": [
+                        'en',
+                        'es'
+                    ]
+                }
+            },
+            "required": ["number", "category", "lang"]
+        },
+    },
+}
+
+
+def get_random_news_by_category(number: int, category: str, lang: str) -> str:
     """ Retrieves random news articles by the given category, and returns
         their title.
 
     Args:
         number (int): the number of news articles by category to return.
         category (str): the category of news articles to return.
+        lang (str): the target language to translate the news.
 
     Returns:
         str: the title and ID of each news article.
     """
+
     news_lf = load_news_articles()
     news_articles = []
 
@@ -106,9 +121,23 @@ def get_random_news_by_category(number: int, category: str) -> str:
         pl.col("title"),
         pl.col("news_id")
     ).collect().sample(n=number).rows()
+
     for article in news_by_cat:
-        news_articles.append("Title: \"" + article[0] + "\", \
-ID: \"" + article[1] + "\"")
+        title_and_id = "Title: \"" + article[0] + "\", \
+ID: \"" + article[1] + "\""
+        if lang != "en":
+            load_dotenv()
+            translator_endpoint = os.getenv('TRANSLATOR_ENDPOINT')
+            translator_region = os.getenv('TRANSLATOR_REGION')
+            translator_key = os.getenv('TRANSLATOR_KEY')
+            credential = AzureKeyCredential(translator_key)
+            translator_client = TextTranslationClient(credential=credential,
+                                                      endpoint=translator_endpoint,
+                                                      region=translator_region)
+            title_and_id = translate_text(translator_client,
+                                          title_and_id,
+                                          lang)
+        news_articles.append(title_and_id)
 
     return ". ".join(news_articles)
 
@@ -122,7 +151,14 @@ d title. This function requires at least one title to function correctly.",
         "parameters": {
             "type": "object",
             "properties": {
-                "title": { "type": "string"},
+                "title": { "type": "string" },
+                "lang": {
+                    "type": "string",
+                    "enum": [
+                        'en',
+                        'es'
+                    ]
+                }
             },
             "required": ["title"],
         },
@@ -130,11 +166,12 @@ d title. This function requires at least one title to function correctly.",
 }
 
 
-def get_article_abstract_by_title(title: str) -> str:
+def get_article_abstract_by_title(title: str, lang: str) -> str:
     """ Retrieves a news article's abstract by the given title.
 
     Args:
         title (str): the title of the article to return.
+        lang (str): the target language to translate the news.
 
     Returns:
         str: the news article's abstract.
@@ -146,8 +183,22 @@ def get_article_abstract_by_title(title: str) -> str:
         pl.col("abstract")
     ).collect()
 
-    if len(abstract.to_series().to_list()) > 0:
-        return abstract.to_series().to_list()[0]
+    abstract = abstract.to_series().to_list()
+    if len(abstract) > 0:
+        abstract = abstract[0]
+        if lang != "en":
+            load_dotenv()
+            translator_endpoint = os.getenv('TRANSLATOR_ENDPOINT')
+            translator_region = os.getenv('TRANSLATOR_REGION')
+            translator_key = os.getenv('TRANSLATOR_KEY')
+            credential = AzureKeyCredential(translator_key)
+            translator_client = TextTranslationClient(credential=credential,
+                                                      endpoint=translator_endpoint,
+                                                      region=translator_region)
+            abstract = translate_text(translator_client,
+                                      abstract,
+                                      lang)
+        return abstract
     else:
         return "Abstract not found."
 
@@ -161,19 +212,27 @@ d id. This function requires at least one news_id to function correctly.",
         "parameters": {
             "type": "object",
             "properties": {
-                "id": { "type": "string"},
+                "id": { "type": "string" },
+                "lang": {
+                    "type": "string",
+                    "enum": [
+                        'en',
+                        'es'
+                    ]
+                }
             },
-            "required": ["id"],
+            "required": ["id", "lang"],
         },
     },
 }
 
 
-def get_article_abstract_by_id(id: str) -> str:
+def get_article_abstract_by_id(id: str, lang: str) -> str:
     """ Retrieves a news article's abstract by the id.
 
     Args:
         id (str): the id of the article to return.
+        lang (str): the target language to translate the news.
 
     Returns:
         str: the news article's abstract.
@@ -185,13 +244,25 @@ def get_article_abstract_by_id(id: str) -> str:
         pl.col("abstract")
     ).collect()
 
-    if len(abstract.to_series().to_list()) > 0:
-        return abstract.to_series().to_list()[0]
+    abstract = abstract.to_series().to_list()
+    if len(abstract) > 0:
+        abstract = abstract[0]
+        if lang != "en":
+            load_dotenv()
+            translator_endpoint = os.getenv('TRANSLATOR_ENDPOINT')
+            translator_region = os.getenv('TRANSLATOR_REGION')
+            translator_key = os.getenv('TRANSLATOR_KEY')
+            credential = AzureKeyCredential(translator_key)
+            translator_client = TextTranslationClient(credential=credential,
+                                                      endpoint=translator_endpoint,
+                                                      region=translator_region)
+            abstract = translate_text(translator_client,
+                                      abstract,
+                                      lang)
+        return abstract
     else:
         return "Abstract not found."
 
 
 if __name__ == "__main__":
-    print(get_article_abstract_by_title("Raptors' Fred VanVleet injured after \
-collision with cameraman"))
-    print(get_random_news_by_category(3, "sports"))
+    print(get_article_abstract_by_id("N61592", "en"))

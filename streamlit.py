@@ -167,7 +167,6 @@ if "messages" not in st.session_state:
         "content": "You are a helpful assistant that helps users get news \
 article recommendations. You have access to several tools and sometimes you \
 may need to call multiple tools in sequence to get answers for your users. \
-You must translate the output of the tools to the user's language. \
 Don't read the article ID."
     }
 ]
