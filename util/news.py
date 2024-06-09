@@ -16,7 +16,7 @@ def download_news_articles() -> None:
     """ Downloads and extracts the news articles dataset. """
 
     url = "https://mind201910small.blob.core.windows.net/release/MINDsmall_dev.zip"
-    response = requests.get(url, allow_redirects=True)
+    response = requests.get(url, allow_redirects=True, timeout=60)
 
     with open("data/MINDsmall_dev.zip", 'wb') as file:
         file.write(response.content)
