@@ -85,13 +85,7 @@ from a given category. This function requires at least one category to work.",
                         'music'
                     ]
                 },
-                "lang": {
-                    "type": "string",
-                    "enum": [
-                        'en',
-                        'es'
-                    ]
-                }
+                "lang": { "type": "string" }
             },
             "required": ["number", "category", "lang"]
         },
@@ -152,15 +146,9 @@ d title. This function requires at least one title to function correctly.",
             "type": "object",
             "properties": {
                 "title": { "type": "string" },
-                "lang": {
-                    "type": "string",
-                    "enum": [
-                        'en',
-                        'es'
-                    ]
-                }
+                "lang": { "type": "string" }
             },
-            "required": ["title"],
+            "required": ["title", "lang"],
         },
     },
 }
@@ -213,13 +201,7 @@ d id. This function requires at least one news_id to function correctly.",
             "type": "object",
             "properties": {
                 "id": { "type": "string" },
-                "lang": {
-                    "type": "string",
-                    "enum": [
-                        'en',
-                        'es'
-                    ]
-                }
+                "lang": { "type": "string" }
             },
             "required": ["id", "lang"],
         },
