@@ -254,7 +254,7 @@ code = """
             case "ArrowDown":
                 console.log("down");
                 const iframe2 = window.parent.document.querySelector('[title="audiorecorder.audiorecorder"]');
-                const streamlitDoc2 = iframe2.contentDocument || iframe.contentWindow.document;
+                const streamlitDoc2 = iframe2.contentDocument || i2frame.contentWindow.document;
                 buttons = Array.from(streamlitDoc2.querySelectorAll('button'));
                 stop_button = buttons.find((el) => el.innerText === "Stop");
                 stop_button.click();
