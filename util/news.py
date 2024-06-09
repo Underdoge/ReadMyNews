@@ -139,7 +139,7 @@ def get_articles_with_click_counts() -> pl.DataFrame:
     return pl.DataFrame(list(clicks_per_article_id.values()))
 
 
-NEWS_RECS_BY_CATEGORY = {
+RANDOM_NEWS_BY_CATEGORY = {
     "type": "function",
     "function": {
         "name": "get_random_news_by_category",
@@ -222,7 +222,7 @@ ID: \"" + article[1] + "\""
     return ". ".join(news_articles)
 
 
-NEWS_RECS_BY_CATEGORY = {
+MOST_ENGAGED_NEWS_BY_CATEGORY = {
     "type": "function",
     "function": {
         "name": "get_most_engaged_news_by_category",
@@ -277,40 +277,40 @@ def get_most_engaged_news_by_category(number: int, category: str,
     """
 
     news_lf = load_news_articles()
-    article_engagement = get_articles_with_click_counts()
+    top_news_ids = get_articles_with_click_counts()
     news_articles = []
 
-    article_engagement = article_engagement.filter(
+    top_news_ids = top_news_ids.filter(
         pl.col("category") == category
-    ).sort("clicks", descending=True)
+    ).top_k(number, by="clicks").select(
+        pl.col("news_id")
+    ).to_series()
 
-    print(article_engagement)
+    news_by_cat = news_lf.filter(
+        pl.col("news_id").is_in(top_news_ids)
+    ).select(
+        pl.col("title"),
+        pl.col("news_id")
+    ).rows()
 
-#     news_by_cat = news_lf.filter(
-#         pl.col("category") == category
-#     ).select(
-#         pl.col("title"),
-#         pl.col("news_id")
-#     ).sample(n=number).rows()
+    for article in news_by_cat:
+        title_and_id = "Title: \"" + article[0] + "\", \
+ID: \"" + article[1] + "\""
+        if lang != "en":
+            load_dotenv()
+            translator_endpoint = os.getenv('TRANSLATOR_ENDPOINT')
+            translator_region = os.getenv('TRANSLATOR_REGION')
+            translator_key = os.getenv('TRANSLATOR_KEY')
+            credential = AzureKeyCredential(translator_key)
+            translator_client = TextTranslationClient(credential=credential,
+                                                      endpoint=translator_endpoint,
+                                                      region=translator_region)
+            title_and_id = translate_text(translator_client,
+                                          title_and_id,
+                                          lang)
+        news_articles.append(title_and_id)
 
-#     for article in news_by_cat:
-#         title_and_id = "Title: \"" + article[0] + "\", \
-# ID: \"" + article[1] + "\""
-#         if lang != "en":
-#             load_dotenv()
-#             translator_endpoint = os.getenv('TRANSLATOR_ENDPOINT')
-#             translator_region = os.getenv('TRANSLATOR_REGION')
-#             translator_key = os.getenv('TRANSLATOR_KEY')
-#             credential = AzureKeyCredential(translator_key)
-#             translator_client = TextTranslationClient(credential=credential,
-#                                                       endpoint=translator_endpoint,
-#                                                       region=translator_region)
-#             title_and_id = translate_text(translator_client,
-#                                           title_and_id,
-#                                           lang)
-#         news_articles.append(title_and_id)
-
-#     return ". ".join(news_articles)
+    return ". ".join(news_articles)
 
 
 NEWS_ARTICLE_ABSTRACT_BY_TITLE = {
@@ -424,4 +424,4 @@ def get_article_abstract_by_id(id: str, lang: str) -> str:
 
 
 if __name__ == "__main__":
-    print(get_most_engaged_news_by_category(2, "sports", "en"))
+    print(get_most_engaged_news_by_category(5, "sports", "en"))

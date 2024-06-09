@@ -15,12 +15,12 @@ import streamlit as st
 from streamlit.components.v1 import html
 from util.language import detect_language
 from util.news import (
+    MOST_ENGAGED_NEWS_BY_CATEGORY,
     NEWS_ARTICLE_ABSTRACT_BY_ID,
     NEWS_ARTICLE_ABSTRACT_BY_TITLE,
-    NEWS_RECS_BY_CATEGORY,
     get_article_abstract_by_id,
     get_article_abstract_by_title,
-    get_random_news_by_category,
+    get_most_engaged_news_by_category,
 )
 from util.speech import speech_to_text_streamlit, text_to_speech_streamlit
 
@@ -146,13 +146,13 @@ client = AzureOpenAI(
 model_name = os.getenv("MODEL_NAME")
 
 tools = [
-    NEWS_RECS_BY_CATEGORY,
+    MOST_ENGAGED_NEWS_BY_CATEGORY,
     NEWS_ARTICLE_ABSTRACT_BY_TITLE,
     NEWS_ARTICLE_ABSTRACT_BY_ID
 ]
 
 available_functions = {
-    "get_random_news_by_category":get_random_news_by_category,
+    "get_most_engaged_news_by_category": get_most_engaged_news_by_category,
     "get_article_abstract_by_title": get_article_abstract_by_title,
     "get_article_abstract_by_id": get_article_abstract_by_id
 }
@@ -167,7 +167,7 @@ if "messages" not in st.session_state:
         "content": "You are a helpful assistant that helps users get news \
 article recommendations. You have access to several tools and sometimes you \
 may need to call multiple tools in sequence to get answers for your users. \
-Don't provide the article ID. User can press the up arrow to start/stop recor \
+Don't return the article ID. User can press the up arrow to start/stop recor \
 ding."
     }
 ]
