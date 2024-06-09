@@ -241,26 +241,21 @@ if audio is not None and len(audio) > 0:
 
 code = """
 
-    const top_document = window.parent.document;
-    const iframe = top_document.querySelector('[title="audiorecorder.audiorecorder"]');
-    const streamlitDoc = iframe.contentDocument || iframe.contentWindow.document;
-
-    buttons = Array.from(streamlitDoc.querySelectorAll('button'));
-    record_button = buttons.find((el) => el.innerText === "Record");
-    stop_button = buttons.find((el) => el.innerText === "Stop");
-    console.log(record_button);
-
-    top_document.addEventListener("keydown", function (e) {
+    window.parent.document.addEventListener("keydown", function (e) {
         switch (e.key) {
             case "ArrowUp":
                 console.log("up");
+                const iframe = window.parent.document.querySelector('[title="audiorecorder.audiorecorder"]');
+                const streamlitDoc = iframe.contentDocument || iframe.contentWindow.document;
                 buttons = Array.from(streamlitDoc.querySelectorAll('button'));
                 record_button = buttons.find((el) => el.innerText === "Record");
                 record_button.click();
                 break;
             case "ArrowDown":
                 console.log("down");
-                buttons = Array.from(streamlitDoc.querySelectorAll('button'));
+                const iframe2 = window.parent.document.querySelector('[title="audiorecorder.audiorecorder"]');
+                const streamlitDoc2 = iframe2.contentDocument || iframe.contentWindow.document;
+                buttons = Array.from(streamlitDoc2.querySelectorAll('button'));
                 stop_button = buttons.find((el) => el.innerText === "Stop");
                 stop_button.click();
                 break;
