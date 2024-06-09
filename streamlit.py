@@ -239,26 +239,26 @@ if audio is not None and len(audio) > 0:
 
 
 code = """
-
+    recording = false
     window.parent.document.addEventListener("keydown", function (e) {
-        switch (e.key) {
-            case "ArrowUp":
-                console.log("up");
+        if (e.key == "ArrowUp")
+            if (!recording) {
+                console.log("Start recording");
                 const iframe = window.parent.document.querySelector('[title="audiorecorder.audiorecorder"]');
                 const streamlitDoc = iframe.contentDocument || iframe.contentWindow.document;
                 buttons = Array.from(streamlitDoc.querySelectorAll('button'));
                 record_button = buttons.find((el) => el.innerText === "Record");
                 record_button.click();
-                break;
-            case "ArrowDown":
-                console.log("down");
+                recording = true
+            } else {
+                console.log("Stop recording");
                 const iframe2 = window.parent.document.querySelector('[title="audiorecorder.audiorecorder"]');
                 const streamlitDoc2 = iframe2.contentDocument || i2frame.contentWindow.document;
                 buttons = Array.from(streamlitDoc2.querySelectorAll('button'));
                 stop_button = buttons.find((el) => el.innerText === "Stop");
                 stop_button.click();
-                break;
-        }
+                recording = false
+            }
     });
 
 """
