@@ -9,7 +9,7 @@ from azure.ai.translation.text import TextTranslationClient
 from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
 
-from util.language import translate_text
+from language import translate_text
 
 
 def download_news_articles() -> None:
@@ -134,8 +134,15 @@ def get_articles_with_click_counts() -> pl.DataFrame:
                 else:
                     clicks_per_article_id[
                         article_id]["clicks"] += int(click[-1])
-    # for each clicks_per_article_id
-    print(pl.DataFrame(clicks_per_article_id))
+    article_engagement = pl.DataFrame(schema={"news_id": pl.String,
+                                              "category": pl.String,
+                                              "clicks": pl.Int64})
+    for key, value in clicks_per_article_id.items():
+        new_df = pl.DataFrame({"news_id": key,
+                               "category": value["category"],
+                               "clicks": value["clicks"]})
+        article_engagement = pl.concat([article_engagement, new_df])
+    print(article_engagement)
 
 
 NEWS_RECS_BY_CATEGORY = {

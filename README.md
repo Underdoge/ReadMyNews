@@ -30,6 +30,7 @@ source venv/bin/activate
 ```
 ### Activating the virtual environment on Windows (PowerShell)
 ```powershell
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 .\venv\Scripts\Activate.ps1
 ```
 ### Installing requirements
