@@ -8,7 +8,8 @@ import requests
 from azure.ai.translation.text import TextTranslationClient
 from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
-from language import translate_text
+
+from util.language import translate_text
 
 
 def download_news_articles() -> None:
