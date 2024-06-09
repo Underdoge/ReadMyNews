@@ -167,7 +167,8 @@ if "messages" not in st.session_state:
         "content": "You are a helpful assistant that helps users get news \
 article recommendations. You have access to several tools and sometimes you \
 may need to call multiple tools in sequence to get answers for your users. \
-Don't read the article ID."
+Don't provide the article ID. User can press the up arrow to start/stop recor \
+ding."
     }
 ]
 
@@ -180,7 +181,9 @@ for message in st.session_state.messages:
 
 
 with st.sidebar:
-    audio = audiorecorder("Record", "Stop", show_visualizer=True)
+    st.title("Instructions")
+    st.header("Press the up arrow to start/stop recording.")
+    audio = audiorecorder("Record", "Stop")
 
 
 user_input = st.chat_input("What can I help you with?")
@@ -201,8 +204,7 @@ if user_input:
                 speech_config, assistant_response.choices[0].message.content,
                 lang)
             st.write(assistant_response.choices[0].message.content)
-            with st.sidebar:
-                st.audio("sounds/response.wav", autoplay=True)
+            st.audio("sounds/response.wav", autoplay=True)
         else:
             print(assistant_response)
     st.session_state.messages.append(
@@ -228,8 +230,7 @@ if audio is not None and len(audio) > 0:
                     assistant_response.choices[0].message.content,
                     lang)
             st.write(assistant_response.choices[0].message.content)
-            with st.sidebar:
-                st.audio("sounds/response.wav", autoplay=True)
+            st.audio("sounds/response.wav", autoplay=True)
         else:
             print(assistant_response)
     st.session_state.messages.append(

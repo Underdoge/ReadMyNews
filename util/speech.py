@@ -69,7 +69,8 @@ def speech_to_text(speech_config: SpeechConfig) -> tuple[str, str]:
     text = ''
     language = ''
     language_config = speech_sdk.languageconfig.AutoDetectSourceLanguageConfig(
-                                                languages=["en-US", "es-MX"])
+                                                languages=["en-US", "es-MX",
+                                                           "fr-FR", "pt-BR"])
 
     audio_config = speech_sdk.AudioConfig(use_default_microphone=True)
     speech_recognizer = speech_sdk.SpeechRecognizer(
@@ -106,7 +107,8 @@ def speech_to_text_streamlit(speech_config: SpeechConfig) -> tuple[str, str]:
     text = ''
     language = ''
     language_config = speech_sdk.languageconfig.AutoDetectSourceLanguageConfig(
-                                                languages=["en-US", "es-MX"])
+                                                languages=["en-US", "es-MX",
+                                                           "fr-FR", "pt-BR"])
 
     audio_config = speech_sdk.AudioConfig(filename='sounds/prompt.wav')
     speech_recognizer = speech_sdk.SpeechRecognizer(
