@@ -1,6 +1,6 @@
 # Read My News :newspaper::microphone::speaker:
 
-Today, there is such an abundance of news and information that it is a real challenge to stay up-to-date on the topics that interest us the most. Our project aims to compress this abundance of news and information through a news recommendation system capable of providing this content in a summarized, precise, and easy-to-digest manner, both in easy reading text and voice. This way, people with visual and intellectual disabilities can stay informed in an accessible way, thanks to Azure AI Speech's Speech-to-Text and Text-to-Speech services, and the incredible Generative AI of the Azure OpenAI Service.
+Today, there is such an abundance of news and information that it is a real challenge to stay up-to-date on the topics that interest us the most. Our project aims to compress this abundance of news and information through a news recommendation system capable of providing this content in a summarized, precise, and easy-to-digest manner, both in easy reading text and voice, and in multiple languages. This way, people with visual impairments can stay informed in an accessible way, thanks to Azure AI Speech's Speech-to-Text and Text-to-Speech services, and the incredible Generative AI of the Azure OpenAI Service.
 
 ## Azure AI Resource Creation
 
