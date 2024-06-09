@@ -8,8 +8,7 @@ import requests
 from azure.ai.translation.text import TextTranslationClient
 from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
-
-from util.language import translate_text
+from language import translate_text
 
 
 def download_news_articles() -> None:
@@ -29,7 +28,7 @@ def load_news_articles() -> pl.LazyFrame:
     """ Loads the news articles and returns them in a polars Lazy Frame.
 
     Returns:
-        pl.LazyFrame: _description_
+        LazyFrame: a polars Lazy Frame with the news articles.
     """
 
     if not os.path.isfile("data/MINDsmall_dev/news.tsv"):
@@ -52,6 +51,74 @@ def load_news_articles() -> pl.LazyFrame:
         pl.col("abstract").fill_null("No abstract")
     )
     return news_lf
+
+
+def load_news_article_engagement() -> pl.LazyFrame:
+    """ Loads the article engagements and returns them in a polars Lazy Frame.
+
+    Returns:
+        LazyFrame: a polars Lazy Frame with the news article engagements.
+    """
+
+    if not os.path.isfile("data/MINDsmall_dev/behaviors.tsv"):
+        download_news_articles()
+
+    behaviors_lf = pl.scan_csv("data/MINDsmall_dev/behaviors.tsv",
+                       separator="\t",
+                       has_header=False,
+                       schema={"impression_id" : pl.datatypes.Int64,
+                               "user_id" : pl.datatypes.String,
+                               "time" : pl.datatypes.String,
+                               "history" : pl.datatypes.String,
+                               "impressions" : pl.datatypes.String,
+                               },
+                        ignore_errors=True)
+
+    return behaviors_lf
+
+
+def get_news_articles_with_click_counts() -> pl.LazyFrame:
+    """ Returns the news articles by category with click counts.
+
+    Args:
+        number (int): the number of news articles by category to return.
+        category (str): the category of news articles to return.
+        lang (str): the target language to translate the news.
+
+    Returns:
+        LazyFrame: the articles LazyFrame with a new column with click counts.
+    """
+
+    news_lf = load_news_articles()
+    behaviors_lf = load_news_article_engagement()
+
+    # get all engagements in a list
+    all_clicks = behaviors_lf.select(
+        pl.col("impressions")
+    ).collect().rows()
+    # dict to store clicks per news article ID
+    clicks_per_article_id = {}
+    for clicks_group in all_clicks:
+        clicks = clicks_group[0].split(" ")
+        for click in clicks:
+            if click[-1] != "0":
+                article_id = click[:-2]
+                if article_id not in clicks_per_article_id:
+                    print(article_id)
+                    category = news_lf.filter(
+                                    pl.col("news_id") == article_id
+                                ).collect().select(
+                                    pl.col("category")
+                                ).to_series().to_list()[0]
+                    clicks_per_article_id[article_id] = {
+                        "clicks": int(click[-1]),
+                        "category": category}
+                else:
+                    clicks_per_article_id[article_id]["clicks"] += int(click[-1])
+    print(clicks_per_article_id)
+    # print(news_lf.filter(
+    #         pl.col("news_id").is_in(clicks_per_article_id.keys())
+    # ).collect())
 
 
 NEWS_RECS_BY_CATEGORY = {
@@ -247,4 +314,4 @@ def get_article_abstract_by_id(id: str, lang: str) -> str:
 
 
 if __name__ == "__main__":
-    print(get_article_abstract_by_id("N61592", "en"))
+    get_news_articles_with_click_counts()
