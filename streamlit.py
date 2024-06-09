@@ -131,8 +131,8 @@ speech_ai_key = os.getenv('SPEECH_KEY')
 speech_ai_region = os.getenv('SPEECH_REGION')
 speech_config = speech_sdk.SpeechConfig(speech_ai_key, speech_ai_region)
 
-ai_endpoint = os.getenv('AI_SERVICE_ENDPOINT')
-ai_key = os.getenv('AI_SERVICE_KEY')
+ai_endpoint = os.getenv('LANGUAGE_ENDPOINT')
+ai_key = os.getenv('LANGUAGE_KEY')
 credential = AzureKeyCredential(ai_key)
 text_analytics_client = TextAnalyticsClient(endpoint=ai_endpoint,
                                             credential=credential)

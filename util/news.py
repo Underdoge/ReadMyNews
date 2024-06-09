@@ -35,7 +35,7 @@ def load_news_articles() -> pl.LazyFrame:
     if not os.path.isfile("data/MINDsmall_dev/news.tsv"):
         download_news_articles()
 
-    news_lf = pl.scan_csv("data/MINDsmall_dev/news.tsv",
+    news_lf = pl.read_csv("data/MINDsmall_dev/news.tsv",
                        separator="\t",
                        has_header=False,
                        schema={"news_id" : pl.datatypes.String,
@@ -64,7 +64,7 @@ def load_news_article_engagement() -> pl.LazyFrame:
     if not os.path.isfile("data/MINDsmall_dev/behaviors.tsv"):
         download_news_articles()
 
-    behaviors_lf = pl.scan_csv("data/MINDsmall_dev/behaviors.tsv",
+    behaviors_lf = pl.read_csv("data/MINDsmall_dev/behaviors.tsv",
                        separator="\t",
                        has_header=False,
                        schema={"impression_id" : pl.datatypes.Int64,
@@ -78,7 +78,29 @@ def load_news_article_engagement() -> pl.LazyFrame:
     return behaviors_lf
 
 
-def get_news_articles_with_click_counts() -> pl.LazyFrame:
+def get_article_category_by_id(news_lf: pl.DataFrame, id: str) -> str:
+    """ Get an article's category by it's news_id.
+
+    Args:
+        news_lf (DataFrame): a DataFrame with all the news articles.
+        id (str): The article's news_id
+
+    Returns:
+        str: the article's category
+    """
+
+    category = news_lf.filter(
+        pl.col("news_id") == id
+    ).select(
+        pl.col("category")
+    )
+
+    category = category.to_numpy()
+    if len(category) > 0:
+        return category[0][0]
+
+
+def get_articles_with_click_counts() -> pl.DataFrame:
     """ Returns the news articles by category with click counts.
 
     Args:
@@ -87,16 +109,15 @@ def get_news_articles_with_click_counts() -> pl.LazyFrame:
         lang (str): the target language to translate the news.
 
     Returns:
-        LazyFrame: the articles LazyFrame with a new column with click counts.
+        DataFrame: the articles DataFrame with a new column with click counts.
     """
 
     news_lf = load_news_articles()
     behaviors_lf = load_news_article_engagement()
-
     # get all engagements in a list
     all_clicks = behaviors_lf.select(
         pl.col("impressions")
-    ).collect().rows()
+    ).rows()
     # dict to store clicks per news article ID
     clicks_per_article_id = {}
     for clicks_group in all_clicks:
@@ -105,21 +126,16 @@ def get_news_articles_with_click_counts() -> pl.LazyFrame:
             if click[-1] != "0":
                 article_id = click[:-2]
                 if article_id not in clicks_per_article_id:
-                    print(article_id)
-                    category = news_lf.filter(
-                                    pl.col("news_id") == article_id
-                                ).collect().select(
-                                    pl.col("category")
-                                ).to_series().to_list()[0]
+                    category = get_article_category_by_id(news_lf,
+                                                            article_id)
                     clicks_per_article_id[article_id] = {
                         "clicks": int(click[-1]),
                         "category": category}
                 else:
-                    clicks_per_article_id[article_id]["clicks"] += int(click[-1])
-    print(clicks_per_article_id)
-    # print(news_lf.filter(
-    #         pl.col("news_id").is_in(clicks_per_article_id.keys())
-    # ).collect())
+                    clicks_per_article_id[
+                        article_id]["clicks"] += int(click[-1])
+    # for each clicks_per_article_id
+    print(pl.DataFrame(clicks_per_article_id))
 
 
 NEWS_RECS_BY_CATEGORY = {
@@ -182,7 +198,7 @@ def get_random_news_by_category(number: int, category: str, lang: str) -> str:
     ).select(
         pl.col("title"),
         pl.col("news_id")
-    ).collect().sample(n=number).rows()
+    ).sample(n=number).rows()
 
     for article in news_by_cat:
         title_and_id = "Title: \"" + article[0] + "\", \
@@ -237,7 +253,7 @@ def get_article_abstract_by_title(title: str, lang: str) -> str:
         pl.col("title") == title
     ).select(
         pl.col("abstract")
-    ).collect()
+    )
 
     abstract = abstract.to_series().to_list()
     if len(abstract) > 0:
@@ -292,7 +308,7 @@ def get_article_abstract_by_id(id: str, lang: str) -> str:
         pl.col("news_id") == id
     ).select(
         pl.col("abstract")
-    ).collect()
+    )
 
     abstract = abstract.to_series().to_list()
     if len(abstract) > 0:
@@ -315,4 +331,8 @@ def get_article_abstract_by_id(id: str, lang: str) -> str:
 
 
 if __name__ == "__main__":
-    get_news_articles_with_click_counts()
+    print(get_random_news_by_category(2, "sports", "en"))
+    print(get_article_abstract_by_title("Saints QB Drew Brees will reportedly start Sunday against Cardinals", "en"))
+    print(get_article_abstract_by_id("N46279", "en"))
+    print(get_article_category_by_id(load_news_articles(), "N46279"))
+    get_articles_with_click_counts()
