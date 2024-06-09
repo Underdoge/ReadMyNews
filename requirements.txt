@@ -1,6 +1,7 @@
 streamlit-audiorecorder
 azure-cognitiveservices-speech
 azure-ai-textanalytics
+azure-ai-translation-text
 ipykernel
 openai==1.30.5
 polars
