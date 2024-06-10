@@ -12,10 +12,10 @@ from dotenv import load_dotenv
 from openai import AzureOpenAI
 
 from util.news import (
+    MOST_ENGAGED_NEWS_BY_CATEGORY,
     NEWS_ARTICLE_ABSTRACT_BY_TITLE,
-    NEWS_RECS_BY_CATEGORY,
     get_article_abstract_by_title,
-    get_random_news_by_category,
+    get_most_engaged_news_by_category,
 )
 from util.speech import speech_to_text, text_to_speech
 
@@ -136,12 +136,12 @@ if __name__ == "__main__":
     model_name = os.getenv("MODEL_NAME")
 
     tools = [
-        NEWS_RECS_BY_CATEGORY,
+        MOST_ENGAGED_NEWS_BY_CATEGORY,
         NEWS_ARTICLE_ABSTRACT_BY_TITLE
     ]
 
     available_functions = {
-        "get_random_news_by_category":get_random_news_by_category,
+        "get_most_engaged_news_by_category":get_most_engaged_news_by_category,
         "get_article_abstract_by_title": get_article_abstract_by_title
     }
 
