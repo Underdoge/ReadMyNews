@@ -13,7 +13,9 @@ from openai import AzureOpenAI
 
 from util.news import (
     MOST_ENGAGED_NEWS_BY_CATEGORY,
+    NEWS_ARTICLE_ABSTRACT_BY_ID,
     NEWS_ARTICLE_ABSTRACT_BY_TITLE,
+    get_article_abstract_by_id,
     get_article_abstract_by_title,
     get_most_engaged_news_by_category,
 )
@@ -137,12 +139,14 @@ if __name__ == "__main__":
 
     tools = [
         MOST_ENGAGED_NEWS_BY_CATEGORY,
-        NEWS_ARTICLE_ABSTRACT_BY_TITLE
+        NEWS_ARTICLE_ABSTRACT_BY_TITLE,
+        NEWS_ARTICLE_ABSTRACT_BY_ID
     ]
 
     available_functions = {
-        "get_most_engaged_news_by_category":get_most_engaged_news_by_category,
-        "get_article_abstract_by_title": get_article_abstract_by_title
+        "get_most_engaged_news_by_category": get_most_engaged_news_by_category,
+        "get_article_abstract_by_title": get_article_abstract_by_title,
+        "get_article_abstract_by_id": get_article_abstract_by_id
     }
 
     next_messages = [
@@ -150,9 +154,9 @@ if __name__ == "__main__":
             "role": "system",
             "content": "You are a helpful assistant that helps users get news \
 article recommendations. You have access to several tools and sometimes you \
-may need to call multiple tools in sequence to get answers for your users, \
-but make sure not to modify the news article titles in any way, or the other \
-tools that use the titles won't work.",
+may need to call multiple tools in sequence to get answers for your users. \
+Don't return the article ID. User can press the up arrow to start/stop recor \
+ding."
         }
     ]
 
