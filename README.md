@@ -2,7 +2,7 @@
 
 Today, there is such an abundance of news and information that it is a real challenge to stay up-to-date on the topics that interest us the most. Our project aims to compress this abundance of news and information through a news recommendation system capable of providing this content in a summarized, precise, and easy-to-digest manner, both in easy reading text and voice, and in multiple languages. This way, people with visual impairments can stay informed in an accessible way, thanks to Azure AI Speech's Speech-to-Text and Text-to-Speech services, and the incredible Generative AI of the Azure OpenAI Service.
 
-## Azure AI Resource Creation
+# Azure AI Resource Creation
 
 1. Create an Azure AI Speech resource on Azure, and obtain its Key and Region from Resource Management > Keys and Endpoints.
 2. Create an Azure AI Language resource on Azure, and obtain its Endpoint and Key from Resource Management > Keys and Endpoints.
@@ -12,7 +12,7 @@ Today, there is such an abundance of news and information that it is a real chal
 6. Choose an Azure OpenAI API version, e.g. "2024-02-01". The available OpenAI API versions can be found [here](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions).
 7. After cloning the repository (steps below), rename the provided .env-example file to just '.env', and enter the corresponding values from the previous steps.
 
-## Installing the App
+# Installing the App
 Open up a Terminal (macOS/Linux) or PowerShell (Windows) and enter the following commands:
 ### Cloning the repository
 ```sh
