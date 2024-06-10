@@ -60,6 +60,10 @@ python app.py
 streamlit run streamlit.py
 ```
 #
-# Dataset Sources
+# Dataset Source
 - [MIND: MIcrosoft News Dataset](https://msnews.github.io/#getting-start).
 #
+# Acknowledgements
+- We adapted several of the functions from the [Working with functions in Azure OpenAI Jupyter Notebook](https://github.com/Azure-Samples/openai/blob/main/Basic_Samples/Functions/working_with_functions.ipynb) found in the [Azure OpenAI Service Samples](https://github.com/Azure-Samples/openai/) repo.
+# Responsible AI
+- We recommend using the default content filtering configuration for the GPT model in the Azure OpenAI service, since we find it is apt for the content in the Microsoft News Dataset. [The default content filtering configuration for the GPT model series is set to filter at the medium severity threshold for all four content harm categories (hate, violence, sexual, and self-harm) and applies to both prompts (text, multi-modal text/image) and completions (text)](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=definitions%2Cpython-new#configurability-preview:~:text=The%20default%20content%20filtering%20configuration%20for%20the%20GPT%20model%20series%20is%20set%20to%20filter%20at%20the%20medium%20severity%20threshold%20for%20all%20four%20content%20harm%20categories%20(hate%2C%20violence%2C%20sexual%2C%20and%20self%2Dharm)%20and%20applies%20to%20both%20prompts%20(text%2C%20multi%2Dmodal%20text/image)%20and%20completions%20(text)). Please read [this guide](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/content-filter?tabs=definitions%2Cpython-new#configurability-preview) to customize content filtering if more strict filtering is required.
