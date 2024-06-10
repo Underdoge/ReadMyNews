@@ -25,11 +25,11 @@ def download_news_articles() -> None:
         zip_file.extractall("data/MINDsmall_dev")
 
 
-def load_news_articles() -> pl.LazyFrame:
-    """ Loads the news articles and returns them in a polars Lazy Frame.
+def load_news_articles() -> pl.DataFrame:
+    """ Loads the news articles and returns them in a polars DataFrame.
 
     Returns:
-        LazyFrame: a polars Lazy Frame with the news articles.
+        DataFrame: a polars DataFrame with the news articles.
     """
 
     if not os.path.isfile("data/MINDsmall_dev/news.tsv"):
@@ -54,11 +54,11 @@ def load_news_articles() -> pl.LazyFrame:
     return news_lf
 
 
-def load_news_article_engagement() -> pl.LazyFrame:
-    """ Loads the article engagements and returns them in a polars Lazy Frame.
+def load_news_article_engagement() -> pl.DataFrame:
+    """ Loads the article engagements and returns them in a polars DataFrame.
 
     Returns:
-        LazyFrame: a polars Lazy Frame with the news article engagements.
+        DataFrame: a polars DataFrame with the news article engagements.
     """
 
     if not os.path.isfile("data/MINDsmall_dev/behaviors.tsv"):
