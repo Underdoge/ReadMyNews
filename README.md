@@ -37,7 +37,19 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```sh
 pip install -r requirements.txt
 ```
-#
+### Installing ffmpeg (required for Speech Synthesis)
+### On Windows
+```powershell
+winget install ffmpeg
+```
+### On Linux (Ubuntu and other distros)
+```sh
+apt install ffmpeg
+```
+### On macOS (using brew)
+```sh
+brew install ffmpeg
+```
 # Running the App
 ### Running the command line app
 ```sh
