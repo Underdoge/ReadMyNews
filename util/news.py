@@ -1,4 +1,4 @@
-"""This module defines the news recommendaion related functions for OpenAI."""
+"""This module defines the news recommendaion system's functions for OpenAI."""
 
 import os.path
 from zipfile import ZipFile
