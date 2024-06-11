@@ -1,5 +1,5 @@
-""" This module contains the functions used to detect language using Azure AI
-Text Analytics.
+""" This module contains the functions used to detect and translate language,
+using Azure AI Text Analytics and Azure AI Language Service.
 """
 
 from azure.ai.textanalytics import TextAnalyticsClient
