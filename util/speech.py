@@ -1,4 +1,5 @@
 """ This module defines the functions for text-to-speech and speech-to-text."""
+
 import azure.cognitiveservices.speech as speech_sdk
 from azure.cognitiveservices.speech import SpeechConfig
 
