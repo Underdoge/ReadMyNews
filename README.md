@@ -12,6 +12,10 @@ Today, there is such an abundance of news and information that it is a real chal
 6. Choose an Azure OpenAI API version, e.g. "2024-02-01". The available OpenAI API versions can be found [here](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions).
 7. After cloning the repository (steps below), rename the provided .env-example file to just '.env', and enter the corresponding values from the previous steps.
 
+# Hosted App
+
+For a very limited time, you can try a hosted version of our Streamlit app, [here](https://readmynews.streamlit.app).
+
 # Installing the App
 Open up a Terminal (macOS/Linux) or PowerShell (Windows) and enter the following commands:
 ### Cloning the repository
