@@ -120,8 +120,6 @@ def speech_to_text_streamlit(speech_config: SpeechConfig) -> tuple[str, str]:
     if speech.reason == speech_sdk.ResultReason.RecognizedSpeech:
         text = speech.text
         language = speech.properties[ADSLR]
-        print("Text:", text)
-        print("Language:", language)
     else:
         print(speech.reason)
         if speech.reason == speech_sdk.ResultReason.Canceled:
