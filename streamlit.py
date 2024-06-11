@@ -239,6 +239,7 @@ if audio is not None and len(audio) > 0:
     audio = None
 
 
+# This code allows the user to use the up arrow to stop/start recording
 code = """
     recording = false
     window.parent.document.addEventListener("keydown", function (e) {
